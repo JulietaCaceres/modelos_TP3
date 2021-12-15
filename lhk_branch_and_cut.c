@@ -4,7 +4,7 @@
 
 #define TIPO_VARIABLE CPX_BINARY
 
-#include "C:/Program Files/IBM/ILOG/CPLEX_Studio1210/cplex/include/ilcplex/cplex.h"
+#include "C:\Program Files\IBM\ILOG\CPLEX_Studio201\cplex\include\ilcplex\cplex.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -14,7 +14,7 @@
 #include "leer_dimac.h"
 
 static void
-free_and_null(char **ptr);
+free_and_null(char** ptr);
 
 static int resolver(CPXENVptr env, CPXLPptr lp);
 
@@ -27,7 +27,7 @@ int resolver(CPXENVptr env, CPXLPptr lp) {
 	int solstat = 0;
 
 	double objval;
-	double *x = NULL;
+	double* x = NULL;
 
 	/* Optimize the problem and obtain solution */
 
@@ -52,7 +52,7 @@ int resolver(CPXENVptr env, CPXLPptr lp) {
 
 	/* Allocate space for solution */
 
-	x = (double *) malloc(cur_numcols * sizeof(double));
+	x = (double*)malloc(cur_numcols * sizeof(double));
 
 	if (x == NULL) {
 		fprintf(stderr, "No memory for solution values.\n");
@@ -69,7 +69,7 @@ int resolver(CPXENVptr env, CPXLPptr lp) {
 	int j;
 	for (j = 0; j < cur_numcols; j++) {
 		if (fabs(x[j]) > 1e-10) {
-			char *colname[1];
+			char* colname[1];
 			char namestore[10];
 			int surplus = 0;
 			status = CPXgetcolname(env, lp, colname, namestore, 10, &surplus, j, j);
@@ -81,9 +81,9 @@ int resolver(CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 
-	TERMINATE:
+TERMINATE:
 
-	free_and_null((char **) &x);
+	free_and_null((char**)&x);
 
 	return (status);
 }
@@ -91,25 +91,25 @@ int resolver(CPXENVptr env, CPXLPptr lp) {
 /* This simple routine frees up the pointer *ptr, and sets *ptr
  to NULL */
 
-static void free_and_null(char **ptr) {
+static void free_and_null(char** ptr) {
 	if (*ptr != NULL) {
 		free(*ptr);
 		*ptr = NULL;
 	}
 } /* END free_and_null */
 
-static int populatebyrow(CPXENVptr env, CPXLPptr lp, bool **matriz, int* pesos, int Nr_vert, int maximoColor) {
+static int populatebyrow(CPXENVptr env, CPXLPptr lp, bool** matriz, int* pesos, int Nr_vert, int maximoColor) {
 	int status = 0;
 
 	int zero = 0;
-	double *ind = NULL;
-	char *tipos = NULL;
+	double* ind = NULL;
+	char* tipos = NULL;
 	int i, j, k;
-	char **nombreColumnas = NULL;
+	char** nombreColumnas = NULL;
 
-	nombreColumnas = (char**) malloc(maximoColor * sizeof(char*));
-	tipos = (char*) malloc(maximoColor * sizeof(char));
-	ind = (double*) malloc(maximoColor * sizeof(double));
+	nombreColumnas = (char**)malloc(maximoColor * sizeof(char*));
+	tipos = (char*)malloc(maximoColor * sizeof(char));
+	ind = (double*)malloc(maximoColor * sizeof(double));
 	if (tipos == NULL || ind == NULL || nombreColumnas == NULL) {
 		status = CPXERR_NO_MEMORY;
 		goto TERMINATE;
@@ -117,30 +117,30 @@ static int populatebyrow(CPXENVptr env, CPXLPptr lp, bool **matriz, int* pesos, 
 	for (j = 0; j < maximoColor; j++) {
 		tipos[j] = CPX_INTEGER;
 		ind[j] = 1;
-		nombreColumnas[j] = (char*) malloc(6 * sizeof(char));
+		nombreColumnas[j] = (char*)malloc(6 * sizeof(char));
 		sprintf(nombreColumnas[j], "x_%d", j + 1);
 	}
 
 	status = CPXnewcols(env, lp, maximoColor, ind, NULL, NULL, tipos, nombreColumnas);
 
 	for (j = 0; j < maximoColor; j++) {
-		free_and_null((char **) &nombreColumnas[j]);
+		free_and_null((char**)&nombreColumnas[j]);
 	}
-	free_and_null((char **) &nombreColumnas);
+	free_and_null((char**)&nombreColumnas);
 
 	if (status)
 		goto TERMINATE;
 
-	nombreColumnas = (char**) malloc(maximoColor * Nr_vert * sizeof(char*));
+	nombreColumnas = (char**)malloc(maximoColor * Nr_vert * sizeof(char*));
 	for (i = 0; i < Nr_vert; i++) {
 		for (j = 0; j < maximoColor; j++) {
-			nombreColumnas[i * maximoColor + j] = (char*) malloc(10 * sizeof(char));
+			nombreColumnas[i * maximoColor + j] = (char*)malloc(10 * sizeof(char));
 			sprintf(nombreColumnas[i * maximoColor + j], "x_%d_%d", i + 1, j + 1);
 		}
 	}
 
-	free_and_null((char **) &tipos);
-	tipos = (char*) malloc(maximoColor * Nr_vert * sizeof(char));
+	free_and_null((char**)&tipos);
+	tipos = (char*)malloc(maximoColor * Nr_vert * sizeof(char));
 	if (tipos == NULL) {
 		status = CPXERR_NO_MEMORY;
 		goto TERMINATE;
@@ -152,9 +152,9 @@ static int populatebyrow(CPXENVptr env, CPXLPptr lp, bool **matriz, int* pesos, 
 	status = CPXnewcols(env, lp, maximoColor * Nr_vert, NULL, NULL, NULL, tipos, nombreColumnas);
 
 	for (j = 0; j < maximoColor * Nr_vert; j++) {
-		free_and_null((char **) &nombreColumnas[j]);
+		free_and_null((char**)&nombreColumnas[j]);
 	}
-	free_and_null((char **) &nombreColumnas);
+	free_and_null((char**)&nombreColumnas);
 
 	if (status)
 		goto TERMINATE;
@@ -164,8 +164,19 @@ static int populatebyrow(CPXENVptr env, CPXLPptr lp, bool **matriz, int* pesos, 
 	double coeficienteTerminoIndependiente[1];
 	coeficienteTerminoIndependiente[0] = 1;
 
-	posicionVariables = (int*) malloc(Nr_vert * sizeof(int));
-	coeficienteVariables = (double*) malloc(Nr_vert * sizeof(double));
+	posicionVariables = (int*)malloc(Nr_vert * sizeof(int));
+	coeficienteVariables = (double*)malloc(Nr_vert * sizeof(double));
+
+	//Eliminacion Simetria por Xk>=Xk+1
+	for (k = 0; k < maximoColor - 1; k++) {
+		posicionVariables[0] = k;
+		coeficienteVariables[0] = 1;
+		posicionVariables[1] = k + 1;
+		coeficienteVariables[1] = -1;
+		status = CPXaddrows(env, lp, 0, 1, 2, NULL, "G", &zero, posicionVariables, coeficienteVariables, NULL, NULL);
+		if (status)
+			goto TERMINATE;
+	}
 
 	//Si el vertice i usa color k la variable de ese color debe pesar por lo menos el peso del vertice i
 	for (k = 0; k < maximoColor; k++) {
@@ -188,7 +199,7 @@ static int populatebyrow(CPXENVptr env, CPXLPptr lp, bool **matriz, int* pesos, 
 			coeficienteVariables[k] = 1;
 		}
 		status = CPXaddrows(env, lp, 0, 1, maximoColor, coeficienteTerminoIndependiente, "E", &zero, posicionVariables, coeficienteVariables, NULL,
-		NULL);
+			NULL);
 		if (status)
 			goto TERMINATE;
 	}
@@ -211,18 +222,18 @@ static int populatebyrow(CPXENVptr env, CPXLPptr lp, bool **matriz, int* pesos, 
 		}
 	}
 
-	TERMINATE:
+TERMINATE:
 
-	free_and_null((char **) &posicionVariables);
-	free_and_null((char **) &coeficienteVariables);
+	free_and_null((char**)&posicionVariables);
+	free_and_null((char**)&coeficienteVariables);
 
-	free_and_null((char **) &ind);
-	free_and_null((char **) &tipos);
+	free_and_null((char**)&ind);
+	free_and_null((char**)&tipos);
 	return (status);
 
 } /* END populatebyrow */
 
-int procesar_Tp(char *path, char *pathOutput) {
+int procesar_Tp(char* path, char* pathOutput) {
 	printf("Inicio\n");
 
 	read_graph_DIMACS_ascii(path);
@@ -261,15 +272,15 @@ int procesar_Tp(char *path, char *pathOutput) {
 	}
 
 	///----
-	int *coloreoValido = (int *) malloc(Nr_vert * sizeof(int));
-	int maxColor = Nr_vert;
+	int* coloreoValido = (int*)malloc(Nr_vert * sizeof(int));
+	int maxColor = 7;
 	buscarSolucionInicial(coloreoValido);
 
 	status = populatebyrow(env, lp, matriz, pesos, Nr_vert, maxColor);
 
 	int cantidadVariables = maxColor + Nr_vert * maxColor;
-	int *posicionVariables = (int*) malloc(cantidadVariables * sizeof(int));
-	double *valorVariables = (double*) malloc(cantidadVariables * sizeof(double));
+	int* posicionVariables = (int*)malloc(cantidadVariables * sizeof(int));
+	double* valorVariables = (double*)malloc(cantidadVariables * sizeof(double));
 
 	int i, j;
 	for (j = 0; j < maxColor; j++) {
@@ -286,7 +297,7 @@ int procesar_Tp(char *path, char *pathOutput) {
 					valorVariables[j] = pesos[i];
 				}
 			}
-			else{
+			else {
 				valorVariables[maxColor + i * maxColor + j] = 0;
 			}
 		}
@@ -301,7 +312,7 @@ int procesar_Tp(char *path, char *pathOutput) {
 		goto TERMINATE;
 	}
 
-///----
+	///----
 
 	status = CPXwriteprob(env, lp, "tp.lp", NULL);
 	if (status) {
@@ -347,7 +358,7 @@ int procesar_Tp(char *path, char *pathOutput) {
 
 	/*=======================================================================*/
 
-	TERMINATE:
+TERMINATE:
 
 	if (lp != NULL) {
 		status = CPXfreeprob(env, &lp);
@@ -380,8 +391,18 @@ int procesar_Tp(char *path, char *pathOutput) {
 } /* END main */
 
 void buscarSolucionInicial(int* coloreoValido) {
-	int i;
-	for (i = 0; i < Nr_vert; i++) {
-		coloreoValido[i] = i;
+	FILE* file = fopen("resultado1.txt", "r"); // read only
+
+	int lavado;
+	int prenda;
+	while (1) {
+		if (fscanf(file, "%d", &prenda) == 1) {
+			fscanf(file, "%d", &lavado);
+			coloreoValido[prenda - 1] = lavado;
+		}
+		else {
+			break;
+		}
 	}
+	fclose(file);
 }
