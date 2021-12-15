@@ -28,3 +28,11 @@ Parece que no se llego al optimo, status: 107
 * Tiempo: 1800.282000
 
 La cantidad de nodos y el tiempo se reduce, aunque no singificativamente.
+
+## Cuarta corrida
+
+Se cambia la forma en que se hardcodea el resultado, esta vez leyendo de un archivo, el resultado es el optimo
+* Optimo: 91.000000
+* Cota: 91.000000
+* Nodos: 15490
+* Tiempo: 185.344000
